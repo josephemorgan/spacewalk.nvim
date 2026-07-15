@@ -100,48 +100,69 @@ require("telescope").load_extension("spacewalk")
 
 ## Post-`:tcd` actions
 
-`actions` maps a keymap (as pressed inside the picker) to a callback. spacewalk always runs
-`:tcd` into the highlighted directory first, then calls your function with that directory:
+`actions` maps a keymap (the key as pressed inside the picker) to a callback. When you press
+the key on a highlighted entry, spacewalk:
+
+1. closes the picker,
+2. runs `:tcd` into that entry's directory, then
+3. calls your `fn(dir)` with the chosen directory.
+
+So every action lands you in the project first, and your callback decides what happens next.
+
+**Modes:** you do not need to register anything for insert mode. spacewalk binds each action
+in **both normal and insert mode**, so the keys work while you are still typing in the
+picker's prompt (insert) or after you have moved into the list (normal). The key string you
+use as the table key is bound verbatim in whichever picker you open, and it takes precedence
+over that picker's built-in mapping for the same key.
+
+The same `actions` table works for both pickers — spacewalk registers the keys natively in
+whichever picker you open.
+
+### Example: pick / browse / terminal
+
+`<C-p>` to fuzzy-find files, `<C-b>` to open a file browser, `<C-t>` to open a terminal —
+all scoped to the project you land in:
 
 ```lua
 require("spacewalk").setup({
   roots = { "~/dev" },
   actions = {
-    -- Telescope users: open find_files in the chosen project
-    ["<C-f>"] = {
-      desc = "Find files",
+    -- <C-p>: fuzzy-find files in the chosen project
+    ["<C-p>"] = {
+      desc = "Pick Files",
       fn = function(dir)
-        require("telescope.builtin").find_files({ cwd = dir })
+        Snacks.picker.files({ cwd = dir })
+        -- telescope: require("telescope.builtin").find_files({ cwd = dir })
       end,
     },
-    -- snacks users: open the file picker in the chosen project
-    ["<C-g>"] = {
-      desc = "Grep",
+    -- <C-b>: browse files in the chosen project
+    ["<C-b>"] = {
+      desc = "Browse Files",
       fn = function(dir)
-        Snacks.picker.grep({ dirs = { dir } })
+        Snacks.explorer({ cwd = dir })
+        -- oil:                    require("oil").open(dir)
+        -- netrw:                  vim.cmd.edit(dir)
+        -- telescope-file-browser:
+        --   require("telescope").extensions.file_browser.file_browser({ cwd = dir })
       end,
     },
-    -- Open a terminal in the chosen project
+    -- <C-t>: open a terminal in the chosen project
     ["<C-t>"] = {
-      desc = "Terminal here",
+      desc = "Open Terminal",
       fn = function(dir)
-        vim.cmd.tabnew()
-        vim.cmd.terminal()
-      end,
-    },
-    -- Open a file browser (netrw / oil / etc.) in the chosen project
-    ["<C-e>"] = {
-      desc = "File browser",
-      fn = function(dir)
-        vim.cmd.edit(dir)
+        Snacks.terminal(nil, { cwd = dir })
+        -- builtin: vim.cmd.terminal()  -- inherits the tcd'd cwd already
       end,
     },
   },
 })
 ```
 
-The same `actions` table works for both pickers — spacewalk registers the keys natively in
-whichever picker you open.
+> **Note on `cwd = dir`.** spacewalk has already run `:tcd dir`, so a bare
+> `Snacks.terminal()` or `find_files()` would inherit that directory. But `:tcd` is
+> *tab*-scoped, and some tools read the global cwd or a stored root instead — passing
+> `cwd = dir` explicitly removes the ambiguity. Swap the bodies for whatever file
+> picker / browser / terminal plugins you actually use.
 
 ## Notes
 
