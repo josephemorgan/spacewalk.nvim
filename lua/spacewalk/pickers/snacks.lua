@@ -30,9 +30,22 @@ function M.open(opts)
 	end
 
 	-- Translate config.actions into snacks actions + input keymaps.
+	--
+	-- snacks stores its built-in picker keymaps in lowercase chord notation
+	-- (e.g. "<c-p>" = list_up, "<c-t>" = tab, "<c-b>" = preview_scroll_up). Lua
+	-- table keys are case-sensitive, so an uppercase "<C-p>" is a *different* key
+	-- and does NOT override the default during the config merge -- both survive,
+	-- collide on the same physical key, and the built-in wins (snacks warns
+	-- "Duplicate key mapping ... check case"). Lowercasing chord notation makes our
+	-- key byte-identical to the default so it cleanly replaces it.
+	local function canonical(key)
+		return key:match("^<.->$") and key:lower() or key
+	end
+
 	local snacks_actions, keys = {}, {}
 	for key, action in pairs(config.options.actions) do
-		local name = "spacewalk_" .. key
+		local lhs = canonical(key)
+		local name = "spacewalk_" .. lhs
 		snacks_actions[name] = function(picker, item)
 			picker:close()
 			if item then
@@ -40,7 +53,7 @@ function M.open(opts)
 				action.fn(item.dir)
 			end
 		end
-		keys[key] = { name, mode = { "n", "i" }, desc = action.desc }
+		keys[lhs] = { name, mode = { "n", "i" }, desc = action.desc }
 	end
 
 	Snacks.picker.pick(vim.tbl_deep_extend("force", {

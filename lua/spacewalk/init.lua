@@ -11,6 +11,7 @@ local M = {}
 --- Configure the plugin and warm the scan cache in the background.
 ---@param opts spacewalk.Config|nil
 function M.setup(opts)
+	vim.notify("spacewalk: scanning roots in the background...", vim.log.levels.INFO)
 	config.setup(opts)
 	-- Fire and forget: the cache is ready by the time a picker usually opens,
 	-- and scan.get() falls back to a synchronous scan if it is not.
