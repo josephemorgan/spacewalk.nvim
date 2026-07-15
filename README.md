@@ -31,7 +31,7 @@ Run `:checkhealth spacewalk` to verify your setup.
 
 ```lua
 {
-  "yourname/spacewalk.nvim",
+  "josephemorgan/spacewalk.nvim",
   dependencies = {
     "nvim-telescope/telescope.nvim", -- or "folke/snacks.nvim"
   },
