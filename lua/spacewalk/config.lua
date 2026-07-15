@@ -10,6 +10,7 @@
 ---@field picker "telescope"|"snacks"|nil       Preferred picker. `nil` = auto-detect what is loaded.
 ---@field actions table<string, spacewalk.Action> Keymap -> post-:tcd callback.
 ---@field on_switch fun(dir: string)|nil        Optional hook run after every plain confirm.
+---@field snacks table                          Extra snacks.picker opts, deep-merged in (e.g. `preview`, `layout`).
 
 local M = {}
 
@@ -22,6 +23,7 @@ local defaults = {
 	picker = nil,
 	actions = {},
 	on_switch = nil,
+	snacks = {},
 }
 
 ---@type spacewalk.Config

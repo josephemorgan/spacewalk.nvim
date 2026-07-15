@@ -18,12 +18,14 @@ function M.open(opts)
 	end
 
 	-- Map our {dir, name} entries onto snacks items. `text` drives both display
-	-- (via format = "text") and matching.
+	-- (via format = "text") and matching. `file` points the built-in previewer at
+	-- the directory, so the preview pane lists that project's contents.
 	local items = {}
 	for _, entry in ipairs(dirs) do
 		table.insert(items, {
 			text = string.format("%-24s %s", entry.name, entry.dir),
 			dir = entry.dir,
+			file = entry.dir,
 		})
 	end
 
@@ -53,7 +55,7 @@ function M.open(opts)
 		end,
 		actions = snacks_actions,
 		win = { input = { keys = keys } },
-	}, opts or {}))
+	}, config.options.snacks or {}, opts or {}))
 end
 
 return M

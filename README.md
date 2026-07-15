@@ -73,6 +73,14 @@ require("spacewalk").setup({
 
   -- Keymaps run *after* :tcd, inside the picker. Each fn receives the chosen dir.
   actions = {},
+
+  -- Extra snacks.picker options, deep-merged into the picker call.
+  -- By default the preview pane lists the highlighted project's files.
+  -- To turn the preview off entirely:
+  --   snacks = { preview = "none" }
+  -- or use a compact, preview-less layout:
+  --   snacks = { layout = { preset = "select" } }
+  snacks = {},
 })
 ```
 
